@@ -4,5 +4,8 @@ struct Input {
 };
 
 float4 BasicPS(Input input) : SV_TARGET{
-	return float4((float2(0, 1) + input.pos.xy) * 0.5f, 1, 1);
+	float v1 = step(input.svpos.x % 50,16.0f);
+	float v2 = step(input.svpos.y % 50, 16.0f);
+	return float4(0,(v1 + v2) % 2,0,1);
+
 }

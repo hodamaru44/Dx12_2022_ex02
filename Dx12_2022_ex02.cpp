@@ -239,33 +239,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	ShowWindow(hwnd, SW_SHOW);
 
 	//Chapter4_10_3 P146
-	XMFLOAT3 vertices[] = {
-		{-0.4f, -0.7f, 0.0f} , // 左下
+	XMFLOAT3 vertices[] = {	//TRIANGLESTRIP
+		{-0.4f, -0.7f, 0.0f }, // 左下
 		{-0.4f,  0.7f, 0.0f} , // 左上 
 		{ 0.4f, -0.7f, 0.0f} , // 右下
-		{ 0.4f,  0.7f, 0.0f} , // 右上
+		{ 0.4f,  0.7f, 0.0f}//右中
 	};
-
-	//XMFLOAT3 vertices[] = {	//TRIANGLELIST
-	//	//　左下の三角形
-	//	{-0.4f,-0.7f,0.0f} ,	//左下#0
-	//	{-0.4f,0.7f,0.0f} ,	//左上#1
-	//	{0.4f,-0.7f,0.0f} ,	//右下#2
-	//	//　右上の三角形
-	//	{-0.4f,0.7f,0.0f} ,	//左上#3
-	//	{0.4f,0.7f,0.0f} ,	//右上#4
-	//	{0.4f,-0.7f,0.0f},	//右下#5
-	//};
-
-	//XMFLOAT3 vertices[] = {	//TRIANGLESTRIP
-	//{-0.4f,-0.7f,0.0f} ,//左下
-	//{-0.4f,0.7f,0.0f} ,//左上
-	//{0.4f,-0.7f,0.0f} ,//右下
-	//{0.4f,0.7f,0.0f} ,//右上
-	//{0.9f,0.0f,0.0f} ,//右中
-	//};
-
-
 
 	//Chapter4_3_4 P112
 	D3D12_HEAP_PROPERTIES heapprop = {};
@@ -499,7 +478,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	MSG	msg = {};
 	// Chapter4_10_3
-	float clearColor[] = { 0.125f, 0.125f, 0.125f, 1.0f }; //黄色
+	float clearColor[] = { 0.0f, 1.f, 0.125f, 1.0f }; //黄色
+
 
 	while (true) {
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
@@ -510,6 +490,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (msg.message == WM_QUIT) {
 			break;
 		}
+
+		result = vertBuff->Map(0, nullptr, (void**)&vertMap);
+		std::copy(std::begin(vertices), std::end(vertices), vertMap);
+		vertBuff->Unmap(0, nullptr);
+
 
 		// Chapter3_3_6
 		// スワップチェーンを動作
@@ -531,6 +516,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		auto rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 		rtvH.ptr += bbIdx * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		_cmdList->OMSetRenderTargets(1, &rtvH, true, nullptr);
+		clearColor[0] = clearColor[0] + 1.0f / 400;
+		if (clearColor[0] > 1.0f) {
+			clearColor[0] = 0.0f;
+		}
 		_cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
 
 
